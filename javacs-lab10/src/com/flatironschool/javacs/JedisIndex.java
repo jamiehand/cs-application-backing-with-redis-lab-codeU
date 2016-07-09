@@ -100,7 +100,7 @@ public class JedisIndex {
 	public Integer getCount(String url, String term) {
         // FILL THIS IN!
 		String strCount = jedis.hget(termCounterKey(url), term);
-		return Integer.parseInt(strCount);
+		return Integer.parseInt(strCount);  // or just Integer(strCount) ?
 	}
 
 	/**
