@@ -68,7 +68,9 @@ public class JedisIndex {
 	 */
 	public Set<String> getURLs(String term) {
         // FILL THIS IN!
-		return null;
+		String key = urlSetKey(term);
+		Set<String> urls = jedis.smembers(key);
+		return urls;
 	}
 
     /**
@@ -79,7 +81,13 @@ public class JedisIndex {
 	 */
 	public Map<String, Integer> getCounts(String term) {
         // FILL THIS IN!
-		return null;
+		Map<String, Integer> counts = new HashMap<String, Integer>();
+		Set<String> urls = getURLs(term);
+		for (String url: urls) {
+			Integer count = getCount(url, term);
+			counts.put(url, count);
+		}
+		return counts;
 	}
 
     /**
@@ -122,14 +130,12 @@ public class JedisIndex {
 
 		// TODO: do this as a Transaction to make it more efficient.
 		// for each term in the TermCounter, add the TermCounter to the index
-		System.out.println("hello6e!");
 		Set<String> terms = jedis.hkeys(termCounterKey(url));
 		Transaction t = jedis.multi();
 		for (String term: terms) {
 			add(term, url, t);
 		}
 		t.exec();
-		System.out.println("hello6f!");
 	}
 
 	/**
@@ -143,13 +149,6 @@ public class JedisIndex {
 		// jedis.sadd("URLSet:term", "url");
 		// This is done in jtc.processElements:
 		//jedis.hincrBy("TermCounter:url", "term", 1);
-	}
-
-	/* for testing add(term, url) */
-	public Set<String> urlSetMembers(String term) {
-		String key = urlSetKey(term);
-		Set<String> urls = jedis.smembers(key);
-		return urls;
 	}
 
 	/**
@@ -271,14 +270,11 @@ public class JedisIndex {
 	public static void main(String[] args) throws IOException {
 		Jedis jedis = JedisMaker.make();
 		JedisIndex index = new JedisIndex(jedis);
-		System.out.println("hello0!");
 
 		index.deleteTermCounters();
 		index.deleteURLSets();
 		index.deleteAllKeys();
-		System.out.println("hello1!");
 		loadIndex(index);
-		System.out.println("hello2!");
 
 		// Map<String, Integer> map = index.getCounts("the");
 		// for (Entry<String, Integer> entry: map.entrySet()) {
@@ -294,14 +290,11 @@ public class JedisIndex {
 	 */
 	private static void loadIndex(JedisIndex index) throws IOException {
 		WikiFetcher wf = new WikiFetcher();
-		System.out.println("hello3!");
 
 		String url = "https://en.wikipedia.org/wiki/Java_(programming_language)";
 		Elements paragraphs = wf.readWikipedia(url);
-		System.out.println("hello4!");
 
 		index.indexPage(url, paragraphs);
-		System.out.println("hello5!");
 
 		url = "https://en.wikipedia.org/wiki/Programming_language";
 		paragraphs = wf.readWikipedia(url);

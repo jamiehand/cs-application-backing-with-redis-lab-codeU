@@ -54,12 +54,10 @@ public class JedisTermCounter {
 	 */
 	public void processElements(Elements paragraphs) {
 		Transaction t = jedis.multi();
-		System.out.println("hello6a!");
 		for (Node node: paragraphs) {
 			processTree(node, t);
 		}
 		t.exec();
-		System.out.println("hello6d!");
 	}
 
 	/**
@@ -70,7 +68,6 @@ public class JedisTermCounter {
 	public void processTree(Node root, Transaction t) {
 		// NOTE: we could use select to find the TextNodes, but since
 		// we already have a tree iterator, let's use it.
-		System.out.println("hello6b!");
 		for (Node node: new WikiNodeIterable(root)) {
 			if (node instanceof TextNode) {
 				processText(((TextNode) node).text(), t);
@@ -86,25 +83,21 @@ public class JedisTermCounter {
 	public void processText(String text, Transaction t) {
 		// replace punctuation with spaces, convert to lower case, and split on whitespace
 		String[] array = text.replaceAll("\\pP", " ").toLowerCase().split("\\s+");
-		System.out.println("hello6c!");
 		for (int i=0; i<array.length; i++) {
 			String term = array[i];
-			// incrementTermCount(term);
 			t.hincrBy("TermCounter:" + url, term, 1);
-			// System.out.println("hello7!");
 		}
-		// System.out.println("hello8!");
 	}
 
-	/**
-	 * Increments the counter associated with `term`.
-	 *
-	 * @param term
-	 */
-	public void incrementTermCount(String term) {
-		// System.out.println(term);
-		// put(term, get(term) + 1);
-	}
+	// /**
+	//  * Increments the counter associated with `term`.
+	//  *
+	//  * @param term
+	//  */
+	// public void incrementTermCount(String term) {
+	// 	// System.out.println(term);
+	// 	// put(term, get(term) + 1);
+	// }
 
 	// /**
 	//  * Adds a term to the map with a given count.

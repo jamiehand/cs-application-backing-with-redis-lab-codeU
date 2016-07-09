@@ -35,6 +35,9 @@ public class JedisIndexTest {
 		jedis = JedisMaker.make();
 		index = new JedisIndex(jedis);
 
+		index.deleteTermCounters();
+		index.deleteURLSets();
+		index.deleteAllKeys();
 		loadIndex(index);
 	}
 
@@ -63,16 +66,16 @@ public class JedisIndexTest {
 	public void tearDown() throws Exception {
 		jedis.close();
 	}
-	//
-	// /**
-	//  * Test method for {@link com.flatironschool.javacs.JedisIndex#getCounts(java.lang.String)}.
-	//  */
-	// @Test
-	// public void testGetCounts() {
-	// 	Map<String, Integer> map = index.getCounts("the");
-	// 	assertThat(map.get(url1), is(339));
-	// 	assertThat(map.get(url2), is(264));
-	// }
+
+	/**
+	 * Test method for {@link com.flatironschool.javacs.JedisIndex#getCounts(java.lang.String)}.
+	 */
+	@Test
+	public void testGetCounts() {
+		Map<String, Integer> map = index.getCounts("the");
+		assertThat(map.get(url1), is(339));
+		assertThat(map.get(url2), is(264));
+	}
 
 	// /**
 	//  * Test for add -- no longer works b/c add() now uses a transaction
